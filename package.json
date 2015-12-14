@@ -1,0 +1,23 @@
+{
+  "name": "citygen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack": "webpack --config webpack/webpack.config.js",
+    "watch-js": "webpack --config webpack/webpack.config.js --watch"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "coffee-loader": "~0.7.1",
+    "coffee-react-transform": "1.x",
+    "coffee-script": "1.x",
+    "lodash": "^3.10.1",
+    "react": "^0.11.2",
+    "pixi.js": "1.x",
+    "seedrandom": "^2.4.2",
+    "webpack": "^1.12.9"
+  }
+}
