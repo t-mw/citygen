@@ -341,7 +341,6 @@ GameCanvas = React.createClass
       window.addEventListener('resize', @_handleResize)
 
   componentWillUnmount: ->
-    # TODO: remove listeners and cleanup?
     MapStore.removeChangeListener(@_onMapChange)
     window.removeEventListener('resize', @_handleResize)
 

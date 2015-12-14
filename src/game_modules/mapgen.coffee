@@ -440,7 +440,6 @@ generate = (seed) ->
         priorityQ.push(newSegment)
       )
 
-  # TODO: assign segment ids from the server somehow? Unless the map can always be generated client-side
   id = 0
   for segment in segments
     segment.id = id++
