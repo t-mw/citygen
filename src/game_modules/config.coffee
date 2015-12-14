@@ -45,10 +45,7 @@ configVariables = {
   gameLogic:
     SELECT_PAN_THRESHOLD: 50 # px, limit beyond which a click becomes a drag
     SELECTION_RANGE: 50 # px
-    DEFAULT_PICKUP_RANGE: 150 # world units, range for vehicles to pick up things
-    DEFAULT_BOOST_FACTOR: 2
-    DEFAULT_BOOST_DURATION: 2 # minutes
-    MIN_LENGTH_FOR_VEHICLE_ARRIVAL: 0.1
+    DEFAULT_PICKUP_RANGE: 150 # world units
     DEFAULT_CARGO_CAPACITY: 1
     MIN_SPEED_PROPORTION: 0.1 # the minimum reduction of the speed of a road when congested
 }
