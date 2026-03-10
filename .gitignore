@@ -1,3 +1,6 @@
 .DS_Store
 bundle.js
+build
+dist
+.vite
 node_modules

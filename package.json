@@ -1,23 +1,38 @@
 {
   "name": "citygen",
+  "private": true,
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "webpack": "webpack --config webpack/webpack.config.js",
-    "watch-js": "webpack --config webpack/webpack.config.js --watch"
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
+    "format": "prettier --write --log-level warn 'src/**/*.{ts,js}'",
+    "format:check": "prettier --check 'src/**/*.{ts,js}'"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "coffee-loader": "~0.7.1",
-    "coffee-react-transform": "1.x",
-    "coffee-script": "1.x",
-    "lodash": "^3.10.1",
-    "react": "^0.11.2",
-    "pixi.js": "1.x",
-    "seedrandom": "^2.4.2",
-    "webpack": "^1.12.9"
+    "@timohausmann/quadtree-js": "^1.2.6",
+    "noisejs": "^2.1.0",
+    "pixi.js": "^8.17.0",
+    "seedrandom": "^2.4.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.3",
+    "@types/node": "^24.10.13",
+    "@types/seedrandom": "^3.0.8",
+    "eslint": "^9.39.3",
+    "globals": "^17.3.0",
+    "prettier": "^3.0.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.56.1",
+    "vite": "^7.3.1"
   }
 }

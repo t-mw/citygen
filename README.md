@@ -4,13 +4,20 @@ Source code for the interactive procedural city generator found [here](http://tm
 
 ![Screenshot](screen.jpg)
 
-## Building
+## Development
 
 Run:
 
-    npm install; npm run webpack
+    npm install
+    npm start
 
-And open `assets/index.html`.
+## Build
+
+Run:
+
+    npm run build
+
+This bundles the app with Vite into `dist/`.
 
 ## Ports
 
