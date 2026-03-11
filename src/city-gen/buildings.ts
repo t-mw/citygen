@@ -1,22 +1,15 @@
 import Quadtree from "@timohausmann/quadtree-js";
 
-import { CollisionObject, type CollisionLimits } from "./collision";
-import math, { type Point } from "./math";
+import { CollisionObject, type CollisionLimits } from "../collision";
+import config from "../config";
+import math, { type Point } from "../math";
 
-import config from "./config";
-
-enum BuildingType {
-    Residential,
-    Import,
-}
+import { type Road } from "./segment";
 
 type BuildingCorners = [Point, Point, Point, Point];
 
 interface SegmentLike {
-    r: {
-        start: Point;
-        end: Point;
-    };
+    r: Road;
     dir(): number;
     collider: CollisionObject;
 }
@@ -32,30 +25,17 @@ function getCollisionLimits<T>(
 }
 
 export class Building {
-    static id = 0;
-
     center: Point;
     dir: number;
     diagonal: number;
-    type: BuildingType;
     aspectDegree: number;
     corners: BuildingCorners;
     collider: CollisionObject<Building>;
-    supply: unknown[];
-    demand: unknown[];
-    id: number;
 
-    constructor(
-        center: Point,
-        dir: number,
-        diagonal: number,
-        type: BuildingType,
-        aspectRatio = 1,
-    ) {
+    constructor(center: Point, dir: number, diagonal: number, aspectRatio = 1) {
         this.center = center;
         this.dir = dir;
         this.diagonal = diagonal;
-        this.type = type;
 
         // degrees to deviate either end to produce desired aspect ratio
         this.aspectDegree = math.atanDegrees(aspectRatio);
@@ -64,10 +44,6 @@ export class Building {
             type: "rect",
             corners: this.corners,
         });
-        this.supply = [];
-        this.demand = [];
-        this.id = Building.id;
-        Building.id += 1;
     }
 
     generateCorners(): BuildingCorners {
@@ -128,32 +104,20 @@ export class Building {
     }
 }
 
-function createBuildingByType(type: BuildingType): Building {
-    if (type === BuildingType.Import) {
-        return new Building(
-            { x: 0, y: 0 },
-            0,
-            150,
-            BuildingType.Import,
-            math.randomRange(0.5, 2),
-        );
-    }
+function createImportBuilding() {
+    return new Building({ x: 0, y: 0 }, 0, 150, math.randomRange(0.5, 2));
+}
 
-    return new Building(
-        { x: 0, y: 0 },
-        0,
-        80,
-        BuildingType.Residential,
-        math.randomRange(0.5, 2),
-    );
+function createResidentialBuilding() {
+    return new Building({ x: 0, y: 0 }, 0, 80, math.randomRange(0.5, 2));
 }
 
 function createBuildingFromProbability() {
     if (Math.random() < 0.4) {
-        return createBuildingByType(BuildingType.Import);
+        return createImportBuilding();
     }
 
-    return createBuildingByType(BuildingType.Residential);
+    return createResidentialBuilding();
 }
 
 function createBuildingsAroundSegment(
@@ -164,6 +128,9 @@ function createBuildingsAroundSegment(
     quadtree: Quadtree<CollisionLimits<Building | SegmentLike>>,
 ) {
     const buildings: Building[] = [];
+
+    const placementLoopLimit =
+        config.mapGeneration.BUILDING_PLACEMENT_LOOP_LIMIT;
 
     for (let i = 0; i < count; i += 1) {
         const randomAngle = Math.random() * 360;
@@ -182,11 +149,7 @@ function createBuildingsAroundSegment(
 
         let permitBuilding = false;
 
-        for (
-            let j = 0;
-            j < config.mapGeneration.BUILDING_PLACEMENT_LOOP_LIMIT;
-            j += 1
-        ) {
+        for (let j = 0; j < placementLoopLimit; j += 1) {
             let collisionCount = 0;
             // must query quadtree here, since building limits may have changed due to collision in previous iteration
             const quadtreeCollisions = quadtree.retrieve(
@@ -208,10 +171,7 @@ function createBuildingsAroundSegment(
                     collisionCount += 1;
 
                     // no point continuing if on final loop
-                    if (
-                        j ===
-                        config.mapGeneration.BUILDING_PLACEMENT_LOOP_LIMIT - 1
-                    ) {
+                    if (j === placementLoopLimit - 1) {
                         break;
                     }
 
@@ -239,7 +199,7 @@ function createBuildingsAroundSegment(
     return buildings;
 }
 
-function generateBuildings(segments: SegmentLike[]) {
+export function generateBuildings(segments: SegmentLike[]) {
     const qTree = new Quadtree<CollisionLimits<Building | SegmentLike>>(
         config.mapGeneration.QUADTREE_PARAMS,
         config.mapGeneration.QUADTREE_MAX_OBJECTS,
@@ -275,9 +235,3 @@ function generateBuildings(segments: SegmentLike[]) {
 
     return buildings;
 }
-
-const build = {
-    generateBuildings,
-};
-
-export default build;

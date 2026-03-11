@@ -1,8 +1,8 @@
 import config from "../config";
+import { generateCity } from "../city-gen/generate";
 
-import GameCanvas from "./GameCanvas";
+import { createGameCanvas, type GameCanvasViewState } from "./GameCanvas";
 import ToggleButton from "./ToggleButton";
-import MapStore from "../MapStore";
 
 function createButton(text: string, onClick: () => void) {
     const button = document.createElement("button");
@@ -12,6 +12,25 @@ function createButton(text: string, onClick: () => void) {
 }
 
 function init(root: HTMLElement) {
+    const viewState: GameCanvasViewState = {
+        debugEnabled: false,
+        drawHeatmap: false,
+        targetZoom: 0.05 * window.devicePixelRatio,
+    };
+    const generationState = {
+        segmentCountLimit: config.mapGeneration.SEGMENT_COUNT_LIMIT,
+    };
+
+    const gameCanvas = createGameCanvas(() => viewState);
+
+    function generate(seed: number) {
+        gameCanvas.setCity(
+            generateCity(seed, {
+                segmentCountLimit: generationState.segmentCountLimit,
+            }),
+        );
+    }
+
     document.documentElement.style.width = "100%";
     document.documentElement.style.height = "100%";
     document.body.style.margin = "0";
@@ -55,7 +74,7 @@ function init(root: HTMLElement) {
             onText: "Hide Debug Drawing",
             offText: "Show Debug Drawing",
             action: () => {
-                config.mapGeneration.DEBUG = !config.mapGeneration.DEBUG;
+                viewState.debugEnabled = !viewState.debugEnabled;
             },
         }),
     );
@@ -65,20 +84,19 @@ function init(root: HTMLElement) {
             onText: "Hide Population Heatmap",
             offText: "Show Population Heatmap",
             action: () => {
-                config.mapGeneration.DRAW_HEATMAP =
-                    !config.mapGeneration.DRAW_HEATMAP;
+                viewState.drawHeatmap = !viewState.drawHeatmap;
             },
         }),
     );
 
     controlBar.appendChild(
         createButton("Zoom in", () => {
-            MapStore.factorTargetZoom(3 / 2);
+            viewState.targetZoom *= 3 / 2;
         }),
     );
     controlBar.appendChild(
         createButton("Zoom out", () => {
-            MapStore.factorTargetZoom(2 / 3);
+            viewState.targetZoom *= 2 / 3;
         }),
     );
 
@@ -92,23 +110,32 @@ function init(root: HTMLElement) {
     segmentLimitInput.type = "number";
     segmentLimitInput.min = "1";
     segmentLimitInput.max = "5000";
-    segmentLimitInput.value = String(config.mapGeneration.SEGMENT_COUNT_LIMIT);
+    segmentLimitInput.value = String(generationState.segmentCountLimit);
     segmentLimitInput.addEventListener("change", () => {
-        config.mapGeneration.SEGMENT_COUNT_LIMIT = Number(
-            segmentLimitInput.value,
-        );
+        const nextValue = Number(segmentLimitInput.value);
+        if (!Number.isFinite(nextValue)) {
+            segmentLimitInput.value = String(generationState.segmentCountLimit);
+            return;
+        }
+
+        generationState.segmentCountLimit = Math.max(1, Math.floor(nextValue));
+        segmentLimitInput.value = String(generationState.segmentCountLimit);
     });
     controlBar.appendChild(segmentLimitInput);
 
     controlBar.appendChild(
         createButton("Regenerate", () => {
-            MapStore.generate(new Date().getTime());
+            generate(new Date().getTime());
         }),
     );
 
     main.appendChild(controlBar);
     root.appendChild(main);
-    GameCanvas.mount(canvasHost);
+    gameCanvas.mount(canvasHost);
+
+    const seed = new Date().getTime();
+    console.log(`seed: ${seed.toString()}`);
+    generate(seed);
 }
 
 const App = {
